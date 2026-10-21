@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { Header } from './components/Header';
 import { GameBoard } from './components/GameBoard';
 import { CowrieTray } from './components/CowrieTray';
@@ -687,6 +688,9 @@ export default function App() {
         turnCount={turnCount}
         onPlayAgain={() => initMatch()}
       />
+
+      {/* Vercel Web Analytics */}
+      <Analytics />
     </div>
   );
 }
