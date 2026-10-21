@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asta Chamma (Chinnata | 5 Houses) — Interactive Royal Edition</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --khadi-bg: #f4efe6;
+      --khadi-card: #ebe3d5;
+      --indigo-ink: #172554;
+      --indigo-line: #1e3a8a;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #1c1917;
+      color: #f5f5f4;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    .font-heritage {
+      font-family: 'Cinzel', serif;
+    }
+    /* Khadi Woven Fabric Texture */
+    .khadi-mat {
+      background-color: #f3eee4;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(120, 95, 65, 0.045) 0px, rgba(120, 95, 65, 0.045) 1px, transparent 1px, transparent 4px),
+        repeating-linear-gradient(90deg, rgba(120, 95, 65, 0.045) 0px, rgba(120, 95, 65, 0.045) 1px, transparent 1px, transparent 4px),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.45), rgba(214,199,178,0.35));
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 32px rgba(139, 115, 85, 0.22);
+    }
+    .vertical-text-left {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+    .vertical-text-right {
+      writing-mode: vertical-rl;
+    }
+    @keyframes shellToss {
+      0% { transform: translateY(0) rotate(0deg) scale(1); }
+      35% { transform: translateY(-18px) rotate(160deg) scale(1.14); }
+      70% { transform: translateY(4px) rotate(310deg) scale(0.96); }
+      100% { transform: translateY(0) rotate(360deg) scale(1); }
+    }
+    .shell-anim {
+      animation: shellToss 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    @keyframes pulseRing {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.12); opacity: 0.45; }
+    }
+    .pawn-selectable {
+      animation: pulseRing 1.3s infinite ease-in-out;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen bg-stone-950 text-stone-100 flex flex-col">
+
+  <!-- Top Header & Navigation -->
+  <header class="border-b border-stone-800 bg-stone-900/90 backdrop-blur sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-amber-300 font-heritage font-bold text-lg shadow-inner">
+          ☸
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-heritage font-bold text-base sm:text-lg tracking-wide text-amber-100">
+              ASTA CHAMMA <span class="text-xs sm:text-sm font-normal text-amber-400/90">(Chinnata | 5 Houses)</span>
+            </h1>
+          </div>
+          <p class="text-[11px] text-stone-400 hidden sm:block">
+            Chauka Bara • Katte Mane • Daayam • Champool • Chomal Ishto • Changa Po
+          </p>
+        </div>
+      </div>
+
+      <!-- View Switcher & Audio/New Game Controls -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <div class="inline-flex rounded-lg bg-stone-800 p-0.5 border border-stone-700">
+          <button id="tabBtnPlay" class="px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500 text-stone-950 transition">
+            Play Board
+          </button>
+          <button id="tabBtnAnalysis" class="px-2.5 py-1 rounded-md text-xs font-semibold text-stone-300 hover:text-white transition">
+            Path &amp; Odds
+          </button>
+          <button id="tabBtnRules" class="px-2.5 py-1 rounded-md text-xs font-semibold text-stone-300 hover:text-white transition">
+            Complete Rules
+          </button>
+        </div>
+
+        <button id="btnOpenSettings" class="px-2.5 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-xs font-medium text-stone-200 flex items-center gap-1 transition" title="Rule Variations & Match Setup">
+          <span>⚙️</span> <span class="hidden md:inline">Setup</span>
+        </button>
+
+        <button id="btnToggleSound" class="px-2.5 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 border border-stone-700 text-xs font-medium text-stone-200 transition" title="Toggle Sound Effects">
+          🔊
+        </button>
+
+        <button id="btnNewMatch" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow">
+          ↻ Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-2 sm:px-6 py-4">
+
+    <!-- VIEW 1: PLAYABLE GAME BOARD -->
+    <section id="viewPlay" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+      <!-- Left Column: The Authentic Khadi Canvas 5x5 Board (7 cols on lg) -->
+      <div class="lg:col-span-7 flex flex-col items-center">
+        <div class="w-full max-w-[580px] khadi-mat rounded-2xl p-3 sm:p-5 border-2 border-stone-400/60 relative select-none">
+
+          <!-- Top Cultural Header on Canvas -->
+          <div class="text-center mb-1.5">
+            <h2 class="font-heritage font-extrabold text-indigo-950 text-base sm:text-xl tracking-tight">
+              Asta Chamma <span class="text-xs sm:text-sm font-semibold text-indigo-900">(Chinnata | 5 Houses)</span>
+            </h2>
+          </div>
+
+          <!-- Middle Row: Left Border Text + Interactive SVG/Canvas Board + Right Border Text -->
+          <div class="flex items-stretch justify-center gap-1 sm:gap-2">
+            <!-- Left Vertical Regional Names -->
+            <div class="vertical-text-left text-[10px] sm:text-xs font-bold tracking-wider text-indigo-950/90 flex items-center justify-center py-2">
+              Daayam / Thaayam | Chauka Bara / Katte Mane
+            </div>
+
+            <!-- Interactive 5x5 Board Container -->
+            <div class="relative flex-1 aspect-square max-w-[490px] w-full">
+              <canvas id="boardCanvas" width="600" height="600" class="w-full h-full rounded-sm cursor-pointer block"></canvas>
+
+              <!-- Floating Route Overlay Legend Badge -->
+              <div id="boardHoverTooltip" class="hidden absolute top-2 left-2 bg-stone-900/90 text-amber-100 text-[11px] px-2.5 py-1 rounded-md border border-amber-400/40 pointer-events-none shadow-lg">
+                Square (0,0)
+              </div>
+            </div>
+
+            <!-- Right Vertical Regional Names -->
+            <div class="vertical-text-right text-[10px] sm:text-xs font-bold tracking-wider text-indigo-950/90 flex items-center justify-center py-2">
+              Champool | Chomal Ishto / Kaangi chaala | Changa po
+            </div>
+          </div>
+
+          <!-- Bottom Cultural Footer on Canvas -->
+          <div class="mt-2 pt-1 flex items-center justify-between text-[10px] sm:text-xs font-bold text-indigo-950/90 px-2 sm:px-5">
+            <span class="tracking-wide">☸ Traditional 5×5 Spiral Grid</span>
+            <span class="text-indigo-900/80">Outer: Counter-Clockwise ↺ • Inner: Clockwise ↻</span>
+          </div>
+        </div>
+
+        <!-- Quick Visual Legend & Path Inspector Bar under Board -->
+        <div class="w-full max-w-[580px] mt-3 bg-stone-900/90 border border-stone-800 rounded-xl p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-stone-400 font-medium">Show Spiral Path:</span>
+            <button data-path-player="-1" class="path-preview-btn px-2 py-1 rounded bg-amber-500 text-stone-950 font-semibold transition">Active Turn</button>
+            <button data-path-player="0" class="path-preview-btn px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-orange-300 transition">🟠 Orange (S)</button>
+            <button data-path-player="1" class="path-preview-btn px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-teal-300 transition">🟢 Teal (E)</button>
+            <button data-path-player="2" class="path-preview-btn px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-blue-300 transition">🔵 Blue (N)</button>
+            <button data-path-player="3" class="path-preview-btn px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 text-purple-300 transition">🟣 Purple (W)</button>
+          </div>
+          <label class="flex items-center gap-1.5 text-stone-300 cursor-pointer">
+            <input type="checkbox" id="chkShowCoords" class="rounded bg-stone-800 border-stone-600 text-amber-500" />
+            <span>Step Numbers</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Right Column: Cowrie Shell Thrower, Roll Pool, Player Houses & Move Log (5 cols on lg) -->
+      <div class="lg:col-span-5 flex flex-col gap-3.5">
+
+        <!-- Active Turn & Cowrie Shell Tray Card -->
+        <div class="bg-stone-900 border border-stone-800 rounded-2xl p-4 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2.5">
+              <span id="turnColorDot" class="w-4 h-4 rounded-full bg-orange-500 ring-4 ring-orange-500/20"></span>
+              <div>
+                <div class="text-xs uppercase tracking-wider text-stone-400 font-semibold">Current Turn</div>
+                <div id="turnPlayerTitle" class="text-base font-bold text-white">South House (Orange)</div>
+              </div>
+            </div>
+            <div id="turnStatusPill" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              Throw Cowries
+            </div>
+          </div>
+
+          <!-- 4 Cowrie Shells Visual Tray -->
+          <div class="bg-stone-950/90 border border-stone-800 rounded-xl p-3.5 mb-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-stone-400">4 Cowrie Shells (<span class="italic text-stone-300">Gavvalu / Kavade</span>)</span>
+              <span id="lastRollCallout" class="text-xs font-bold text-amber-300">Ready to Cast</span>
+            </div>
+
+            <!-- The 4 Shells -->
+            <div id="cowrieContainer" class="grid grid-cols-4 gap-2.5 my-2">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Action Buttons: Throw Cowries + Pair Mode Toggle -->
+            <div class="mt-3 flex flex-wrap items-center gap-2">
+              <button id="btnThrowCowries" class="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-stone-950 font-bold text-sm shadow-lg shadow-amber-500/10 transition flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                <span>🐚</span> <span id="btnThrowLabel">Throw Cowrie Shells</span>
+              </button>
+
+              <button id="btnTogglePairMove" class="px-3 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-xs font-semibold text-stone-300 transition flex items-center gap-1.5" title="When two of your pawns share a square, toggle moving them together as a Double (Jodi/Gatti) vs moving a single pawn">
+                <span>🔗</span> <span id="pairModeLabel">Move: Single</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Active Roll Pool (Supports Chamma 4 & Ashta 8 Multi-Roll Chains) -->
+          <div class="bg-stone-950/60 border border-stone-800/80 rounded-xl p-3">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-xs font-semibold text-stone-300">Active Roll Pool (Click a value, then click a pawn)</span>
+              <span id="rollPoolHint" class="text-[11px] text-stone-400">0 pending</span>
+            </div>
+            <div id="rollPoolContainer" class="flex flex-wrap gap-2 min-h-[34px] items-center">
+              <span class="text-xs text-stone-500 italic">Cast the shells to generate move steps...</span>
+            </div>
+
+            <!-- Optional Sandbox Test Roll Bar (for testing specific traditional rules immediately) -->
+            <div class="mt-2.5 pt-2 border-t border-stone-800/80 flex items-center justify-between gap-1 flex-wrap">
+              <span class="text-[11px] text-stone-400">Test Cast:</span>
+              <div class="flex items-center gap-1">
+                <button data-force-roll="1" class="force-roll-btn px-2 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-[11px] text-stone-300 border border-stone-700">1 (Dayam)</button>
+                <button data-force-roll="2" class="force-roll-btn px-2 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-[11px] text-stone-300 border border-stone-700">2 (Duga)</button>
+                <button data-force-roll="3" class="force-roll-btn px-2 py-0.5 rounded bg-stone-800 hover:bg-stone-700 text-[11px] text-stone-300 border border-stone-700">3 (Thiga)</button>
+                <button data-force-roll="4" class="force-roll-btn px-2 py-0.5 rounded bg-amber-950/80 hover:bg-amber-900 text-[11px] text-amber-300 border border-amber-700/50">4 (Chamma+)</button>
+                <button data-force-roll="8" class="force-roll-btn px-2 py-0.5 rounded bg-amber-950/80 hover:bg-amber-900 text-[11px] text-amber-300 border border-amber-700/50">8 (Ashta+)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Houses Status Cards (Shows Pawns Home, Inner Gate Lock/Unlock, Captures) -->
+        <div class="grid grid-cols-2 gap-2.5" id="playerCardsGrid">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+        <!-- Live Commentary & Move History Log -->
+        <div class="bg-stone-900 border border-stone-800 rounded-2xl p-3.5 flex-1 flex flex-col">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-400">Chronicle of Moves</h3>
+            <span id="ruleActiveSummary" class="text-[11px] text-amber-400/90">Blood-Gate: ON • Doubles: ON</span>
+          </div>
+          <div id="moveLogList" class="space-y-1.5 max-h-44 overflow-y-auto pr-1 text-xs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- VIEW 2: PATH GEOMETRY & MATHEMATICAL ODDS ANALYZER -->
+    <section id="viewAnalysis" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Cowrie Shell Binomial Probability Breakdown -->
+        <div class="lg:col-span-6 bg-stone-900 border border-stone-800 rounded-2xl p-5">
+          <h2 class="font-heritage text-lg font-bold text-amber-200 mb-1">
+1. Mathematical Analysis of the 4 Cowrie Shells
+          </h2>
+          <p class="text-xs text-stone-400 mb-4">
+            Unlike a uniform 6-sided cubic die, 4 cowrie shells (<span class="italic">Cypraea moneta</span>) produce a non-uniform binomial distribution across <span class="text-stone-200 font-semibold">2⁴ = 16</span> binary configurations (assuming balanced probability <span class="font-mono">p = 0.5</span> per shell landing mouth-up):
+          </p>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-stone-700 text-stone-400">
+                  <th class="py-2 px-2">Mouths Up</th>
+                  <th class="py-2 px-2">Traditional Name</th>
+                  <th class="py-2 px-2">Steps</th>
+                  <th class="py-2 px-2">Combinations</th>
+                  <th class="py-2 px-2">Exact Odds</th>
+                  <th class="py-2 px-2">Extra Turn?</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-stone-800 text-stone-200">
+                <tr>
+                  <td class="py-2.5 px-2 font-mono">1 Up, 3 Down</td>
+                  <td class="py-2.5 px-2 font-semibold text-stone-100">Okkati / Dayam / Ekka</td>
+                  <td class="py-2.5 px-2 font-bold text-amber-300">1 step</td>
+                  <td class="py-2.5 px-2 font-mono">C(4,1) = 4/16</td>
+                  <td class="py-2.5 px-2 font-mono text-emerald-400">25.00%</td>
+                  <td class="py-2.5 px-2 text-stone-400">No</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-2 font-mono">2 Up, 2 Down</td>
+                  <td class="py-2.5 px-2 font-semibold text-stone-100">Rendu / Duga / Bara-Two</td>
+                  <td class="py-2.5 px-2 font-bold text-amber-300">2 steps</td>
+                  <td class="py-2.5 px-2 font-mono">C(4,2) = 6/16</td>
+                  <td class="py-2.5 px-2 font-mono text-emerald-400">37.50%</td>
+                  <td class="py-2.5 px-2 text-stone-400">No</td>
+                </tr>
+                <tr>
+                  <td class="py-2.5 px-2 font-mono">3 Up, 1 Down</td>
+                  <td class="py-2.5 px-2 font-semibold text-stone-100">Moodu / Thiga / Three</td>
+                  <td class="py-2.5 px-2 font-bold text-amber-300">3 steps</td>
+                  <td class="py-2.5 px-2 font-mono">C(4,3) = 4/16</td>
+                  <td class="py-2.5 px-2 font-mono text-emerald-400">25.00%</td>
+                  <td class="py-2.5 px-2 text-stone-400">No</td>
+                </tr>
+                <tr class="bg-amber-500/5">
+                  <td class="py-2.5 px-2 font-mono">4 Up, 0 Down</td>
+                  <td class="py-2.5 px-2 font-semibold text-amber-300">Chamma / Chauka</td>
+                  <td class="py-2.5 px-2 font-bold text-amber-300">4 steps</td>
+                  <td class="py-2.5 px-2 font-mono">C(4,4) = 1/16</td>
+                  <td class="py-2.5 px-2 font-mono text-amber-300">6.25%</td>
+                  <td class="py-2.5 px-2 font-semibold text-amber-300">Yes (+Roll)</td>
+                </tr>
+                <tr class="bg-amber-500/5">
+                  <td class="py-2.5 px-2 font-mono">0 Up, 4 Down</td>
+                  <td class="py-2.5 px-2 font-semibold text-amber-300">Ashta / Bara</td>
+                  <td class="py-2.5 px-2 font-bold text-amber-300">8 steps</td>
+                  <td class="py-2.5 px-2 font-mono">C(4,0) = 1/16</td>
+                  <td class="py-2.5 px-2 font-mono text-amber-300">6.25%</td>
+                  <td class="py-2.5 px-2 font-semibold text-amber-300">Yes (+Roll)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 grid grid-cols-3 gap-2.5 text-center">
+            <div class="bg-stone-950 border border-stone-800 rounded-xl p-2.5">
+              <div class="text-[11px] text-stone-400">Single Throw EV</div>
+              <div class="text-base font-bold text-amber-300">2.50 steps</div>
+              <div class="text-[10px] text-stone-500">(4×1 + 6×2 + 4×3 + 1×4 + 1×8)/16</div>
+            </div>
+            <div class="bg-stone-950 border border-stone-800 rounded-xl p-2.5">
+              <div class="text-[11px] text-stone-400">Bonus Chain Chance</div>
+              <div class="text-base font-bold text-emerald-400">12.50%</div>
+              <div class="text-[10px] text-stone-500">1 in 8 throws grants bonus</div>
+            </div>
+            <div class="bg-stone-950 border border-stone-800 rounded-xl p-2.5">
+              <div class="text-[11px] text-stone-400">Full Turn EV (w/ Bonus)</div>
+              <div class="text-base font-bold text-amber-300">2.857 steps</div>
+              <div class="text-[10px] text-stone-500">2.50 / (1 − 0.125) = 20/7</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Topological Board Structure & 25-Step Journey -->
+        <div class="lg:col-span-6 bg-stone-900 border border-stone-800 rounded-2xl p-5">
+          <h2 class="font-heritage text-lg font-bold text-amber-200 mb-1">
+2. Topological Structure of the 5×5 Board (Chinnata)
+          </h2>
+          <p class="text-xs text-stone-400 mb-3">
+            Every pawn must traverse exactly <span class="text-stone-100 font-semibold">24 steps (25 cells)</span> from its outer crossed Home square (<span class="font-mono">Step 0</span>) to the central Ashoka Chakra sanctuary (<span class="font-mono">Step 24</span>):
+          </p>
+
+          <div class="space-y-2.5 text-xs">
+            <div class="p-3 rounded-xl bg-stone-950 border border-stone-800">
+              <div class="font-bold text-amber-300 mb-0.5">Phase A — Outer Perimeter Ring (Steps 0 → 15, Counter-Clockwise ↺)</div>
+              <p class="text-stone-300">
+                Pawns start on their side's middle crossed safe house (<span class="font-mono">Step 0</span>) and race anti-clockwise around the 16 exterior squares. Every 4 steps (<span class="font-mono">Steps 0, 4, 8, 12</span>) is an <span class="font-semibold text-white">X-marked Safe House</span>—meaning a Chamma (4) or Ashta (8) from any outer safe house lands directly on another safe house!
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-stone-950 border border-stone-800">
+              <div class="font-bold text-rose-400 mb-0.5">Phase B — The Blood Gate at Step 15 (Hit-to-Enter Qualification)</div>
+              <p class="text-stone-300">
+                <span class="font-mono">Step 15</span> is the square immediately to the left of a player's starting house. A player's pawns can only turn inward from <span class="font-mono">Step 15 → Step 16</span> if that player has <span class="font-semibold text-white">captured ("cut") at least one enemy pawn</span> during the game. Until unlocked, pawns reaching <span class="font-mono">Step 15</span> continue orbiting the outer 16-square loop.
+              </p>
+            </div>
+
+            <div class="p-3 rounded-xl bg-stone-950 border border-stone-800">
+              <div class="font-bold text-emerald-400 mb-0.5">Phase C — Inner 3×3 Ring (Steps 16 → 23, Clockwise ↻) &amp; Exact Finish (Step 24)</div>
+              <p class="text-stone-300">
+                Upon entering <span class="font-mono">Step 16</span>, the direction reverses to <span class="font-semibold text-white">clockwise</span> around the 8 squares of the inner 3×3 ring. Because there are no safe houses on the inner ring, pawns inside are vulnerable to enemy hunters behind them unless paired as a <span class="font-semibold text-white">Double (Gatti)</span>. From <span class="font-mono">Step 23</span>, an exact roll steps into <span class="font-mono">Step 24 (Center Chakra)</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 3: COMPLETE TRADITIONAL RULES & REGIONAL HERITAGE -->
+    <section id="viewRules" class="hidden space-y-5">
+      <div class="bg-stone-900 border border-stone-800 rounded-2xl p-5">
+        <h2 class="font-heritage text-xl font-bold text-amber-200 mb-2">
+          Complete Rules &amp; Regional Heritage codified in this Game
+        </h2>
+        <p class="text-xs sm:text-sm text-stone-300 mb-4">
+          The board in your photo is the classic 5×5 <span class="font-semibold text-amber-300">Asta Chamma (Chinnata | 5 Houses)</span> cloth mat by Bharataha!, featuring natural tumbled stone pawns (Orange, Turquoise, Blue, Purple) and 4 white cowrie shells. All regional rules printed along its borders are built into this simulator:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+          <div class="bg-stone-950 border border-stone-800 rounded-xl p-4">
+            <h3 class="font-bold text-amber-300 text-sm mb-1.5">1. Casting &amp; Bonus Chains</h3>
+            <p class="text-stone-300 leading-relaxed">
+              Throw 4 cowrie shells. Count mouths facing up: <span class="text-white font-semibold">1, 2, or 3</span> ends your throwing phase. All 4 mouths up is <span class="text-amber-300 font-semibold">Chamma / Chauka (4)</span>; all 4 mouths down (inverted) is <span class="text-amber-300 font-semibold">Ashta / Bara (8)</span>. Both 4 and 8 add to your Roll Pool and grant an immediate bonus throw. You may split accumulated rolls across multiple pawns or combine them on a single runner.
+            </p>
+          </div>
+
+          <div class="bg-stone-950 border border-stone-800 rounded-xl p-4">
+            <h3 class="font-bold text-amber-300 text-sm mb-1.5">2. Safe Houses (Ghatta / Chira)</h3>
+            <p class="text-stone-300 leading-relaxed">
+              The 4 outer crossed squares <span class="font-mono">(0,2), (2,0), (4,2), (2,4)</span> and the central Ashoka Chakra <span class="font-mono">(2,2)</span> are <span class="text-white font-semibold">Safe Houses</span>. Pawns resting on an X-marked square cannot be captured, and pawns of all 4 players may occupy them simultaneously.
+            </p>
+          </div>
+
+          <div class="bg-stone-950 border border-stone-800 rounded-xl p-4">
+            <h3 class="font-bold text-amber-300 text-sm mb-1.5">3. Cutting (Champa) &amp; Blood Gate</h3>
+            <p class="text-stone-300 leading-relaxed">
+              Landing on an opponent's single pawn on an uncrossed square <span class="text-white font-semibold">cuts (captures)</span> it, returning it to its starting Home square (<span class="font-mono">Step 0</span>) and awarding you a <span class="text-emerald-400 font-semibold">bonus throw</span>. A player must score at least <span class="text-white font-semibold">one cut</span> before any of their 4 pawns are allowed to enter the inner 3×3 clockwise loop.
+            </p>
+          </div>
+
+          <div class="bg-stone-950 border border-stone-800 rounded-xl p-4">
+            <h3 class="font-bold text-amber-300 text-sm mb-1.5">4. Doubles / Pairs (Jodi / Gatti)</h3>
+            <p class="text-stone-300 leading-relaxed">
+              Stacking 2 of your own pawns on the same square forms a <span class="text-white font-semibold">Double</span>. An opponent's single pawn <span class="text-rose-300 font-semibold">cannot cut a Double</span> and cannot jump past an enemy Double on the outer track! You can toggle <span class="font-mono">🔗 Move: Pair</span> to advance both stacked pawns together using a single roll or split them at will. Only an enemy Double can cut another Double.
+            </p>
+          </div>
+
+          <div class="bg-stone-950 border border-stone-800 rounded-xl p-4">
+            <h3 class="font-bold text-amber-300 text-sm mb-1.5">5. 3× High-Roll Nullification</h3>
+            <p class="text-stone-300 leading-relaxed">
+              Known in Karnataka as <span class="italic text-white">Moor Naak Shyam / Moor Ent Shyam</span>: if a player casts Chamma (4) or Ashta (8) <span class="text-white font-semibold">three times consecutively</span> in a single turn, the streak is considered over-blessed and busts (can be toggled on/off in Setup).
+            </p>
+          </div>
+
+          <div class="bg-stone-950 border border-stone-800 rounded-xl p-4">
+            <h3 class="font-bold text-amber-300 text-sm mb-1.5">6. Exact Entry to Center Home</h3>
+            <p class="text-stone-300 leading-relaxed">
+              To reach the central Ashoka Chakra (<span class="font-mono">Step 24</span>), you must roll the <span class="text-white font-semibold">exact number of remaining steps</span>. Note that entering the inner loop at <span class="font-mono">Step 16</span> places a pawn exactly <span class="text-amber-300 font-semibold">8 steps</span> from the center—so an <span class="font-semibold">Ashta (8)</span> from <span class="font-mono">Step 16</span> scores an instant home run!
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Setup & Rule Variations Modal -->
+  <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-900 border border-stone-700 rounded-2xl max-w-md w-full p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-stone-800">
+        <h3 class="font-heritage font-bold text-lg text-amber-200">Match Setup &amp; Traditional Rules</h3>
+        <button id="btnCloseSettings" class="text-stone-400 hover:text-white text-lg font-bold px-2">✕</button>
+      </div>
+
+      <div class="space-y-4 my-4 text-xs sm:text-sm">
+        <div>
+          <label class="block text-stone-300 font-semibold mb-1.5">Player Mode</label>
+          <select id="selGameMode" class="w-full bg-stone-950 border border-stone-700 rounded-xl px-3 py-2 text-stone-100">
+            <option value="1p_4">1 Human (Orange) vs 3 AI Houses (All 4 Sides)</option>
+            <option value="1p_2">1 Human (Orange) vs 1 AI (Blue — Opposite Houses)</option>
+            <option value="pass_4">4-Player Pass &amp; Play (Local Multiplayer)</option>
+            <option value="pass_2">2-Player Pass &amp; Play (Orange vs Blue)</option>
+          </select>
+        </div>
+
+        <div class="space-y-2.5 pt-2 border-t border-stone-800">
+          <div class="text-xs font-bold uppercase tracking-wider text-stone-400">Authentic Rule Toggles</div>
+
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="chkRuleBloodGate" checked class="mt-1 rounded bg-stone-800 border-stone-600 text-amber-500" />
+            <div>
+              <div class="font-semibold text-stone-100">Blood-Gate Rule (Hit Required for Inner Loop)</div>
+              <div class="text-xs text-stone-400">Pawns must capture at least 1 enemy pawn before entering the clockwise inner 3×3 ring; otherwise they orbit the outer ring.</div>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="chkRuleDoubles" checked class="mt-1 rounded bg-stone-800 border-stone-600 text-amber-500" />
+            <div>
+              <div class="font-semibold text-stone-100">Double / Twin-Stack Shield &amp; Blockade (Jodi / Gatti)</div>
+              <div class="text-xs text-stone-400">Two friendly pawns on an unsafe square form a protected Double that cannot be cut or passed by an enemy single pawn.</div>
+            </div>
+          </label>
+
+          <label class="flex items-start gap-2.5 cursor-pointer">
+            <input type="checkbox" id="chkRuleThreeBust" class="mt-1 rounded bg-stone-800 border-stone-600 text-amber-500" />
+            <div>
+              <div class="font-semibold text-stone-100">3× Consecutive High-Roll Bust (Moor Naak Shyam)</div>
+              <div class="text-xs text-stone-400">Throwing three consecutive 4s/8s in a single turn forfeits the turn.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-stone-800">
+        <button id="btnApplySettings" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-xs sm:text-sm transition">
+          Apply &amp; Start Match
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Victory Banner Modal -->
+  <div id="victoryModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-stone-900 border-2 border-amber-500/60 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
+      <div class="text-4xl mb-2">☸️🏆</div>
+      <h3 id="victoryTitle" class="font-heritage text-xl font-bold text-amber-300 mb-1">South House Wins!</h3>
+      <p id="victorySub" class="text-xs text-stone-300 mb-5">All 4 agate pawns have reached the central Ashoka Chakra sanctuary.</p>
+      <button id="btnPlayAgainModal" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold text-sm transition">
+        Play Another Match
+      </button>
+    </div>
+  </div>
+
+  <script>
+    /*************************************************************************
+- ASTA CHAMMA (CHINNATA | 5 HOUSES) — COMPLETE TRADITIONAL RULES ENGINE
+     *************************************************************************/
+
+    // Outer perimeter anti-clockwise ring (16 cells, starting from South (4,2))
+    const OUTER_CCW = [
+      [4,2], [4,3], [4,4], [3,4],
+      [2,4], [1,4], [0,4], [0,3],
+      [0,2], [0,1], [0,0], [1,0],
+      [2,0], [3,0], [4,0], [4,1]
+    ];
+
+    // Inner 3x3 clockwise ring (8 cells, starting from South-West inner entry (3,1))
+    const INNER_CW = [
+      [3,1], [2,1], [1,1], [1,2],
+      [1,3], [2,3], [3,3], [3,2]
+    ];
+
+    // Build the 25-step spiral path (indices 0..24) for each of the 4 Houses
+    // Player 0: South (4,2) — Orange
+    // Player 1: East  (2,4) — Teal/Green
+    // Player 2: North (0,2) — Blue
+    // Player 3: West  (2,0) — Purple
+    function buildPlayerPath(playerIdx) {
+      const outerOffset = playerIdx * 4; // 0, 4, 8, 12
+      // Inner entry cell is clockwise around the inner ring:
+      // South enters at (3,1) [idx 0], East enters at (3,3) [idx 6],
+      // North enters at (1,3) [idx 4], West enters at (1,1) [idx 2]
+      const innerOffsets = [0, 6, 4, 2];
+      const inOffset = innerOffsets[playerIdx];
+
+      const path = [];
+      for (let i = 0; i < 16; i++) {
+        path.push(OUTER_CCW[(outerOffset + i) % 16]);
+      }
+      for (let i = 0; i < 8; i++) {
+        path.push(INNER_CW[(inOffset + i) % 8]);
+      }
+      path.push([2, 2]); // Step 24: Central Ashoka Chakra Sanctuary
+      return path;
+    }
+
+    const PLAYER_PATHS = [
+      buildPlayerPath(0),
+      buildPlayerPath(1),
+      buildPlayerPath(2),
+      buildPlayerPath(3)
+    ];
+
+    const SAFE_CELLS = new Set(['4,2', '2,4', '0,2', '2,0', '2,2']);
+
+    function isSafeCell(r, c) {
+      return SAFE_CELLS.has(r + ',' + c);
+    }
+
+    const HOUSE_DEFS = [
+      {
+        id: 0,
+        name: 'South House',
+        gemName: 'Saffron Orange',
+        short: 'Orange (S)',
+        homeCoord: [4, 2],
+        primary: '#ea580c',
+        light: '#fb923c',
+        dark: '#9a3412',
+        badgeClass: 'border-orange-500/50 bg-orange-950/30 text-orange-200'
+      },
+      {
+        id: 1,
+        name: 'East House',
+        gemName: 'Turquoise Green',
+        short: 'Teal (E)',
+        homeCoord: [2, 4],
+        primary: '#0d9488',
+        light: '#2dd4bf',
+        dark: '#115e59',
+        badgeClass: 'border-teal-500/50 bg-teal-950/30 text-teal-200'
+      },
+      {
+        id: 2,
+        name: 'North House',
+        gemName: 'Cobalt Blue',
+        short: 'Blue (N)',
+        homeCoord: [0, 2],
+        primary: '#2563eb',
+        light: '#60a5fa',
+        dark: '#1e3a8a',
+        badgeClass: 'border-blue-500/50 bg-blue-950/30 text-blue-200'
+      },
+      {
+        id: 3,
+        name: 'West House',
+        gemName: 'Amethyst Purple',
+        short: 'Purple (W)',
+        homeCoord: [2, 0],
+        primary: '#7e22ce',
+        light: '#c084fc',
+        dark: '#581c87',
+        badgeClass: 'border-purple-500/50 bg-purple-950/30 text-purple-200'
+      }
+    ];
+
+    // Synthesized Web Audio API Sound Engine
+    let soundEnabled = true;
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!soundEnabled) return null;
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) audioCtx = new AudioContextClass();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime;
+
+      if (type === 'shells') {
+        // 4 crisp cowrie clacks
+        [0, 0.055, 0.11, 0.16].forEach((offset, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(520 + idx * 140, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(190, now + offset + 0.045);
+          gain.gain.setValueAtTime(0.16, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.045);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.05);
+        });
+      } else if (type === 'step') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.exponentialRampToValueAtTime(520, now + 0.08);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.085);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.09);
+      } else if (type === 'cut') {
+        [440, 587.33, 880].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(freq, now + i * 0.06);
+          gain.gain.setValueAtTime(0.12, now + i * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.16);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.06);
+          osc.stop(now + i * 0.06 + 0.17);
+        });
+      } else if (type === 'home') {
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + i * 0.08);
+          gain.gain.setValueAtTime(0.15, now + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.25);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.08);
+          osc.stop(now + i * 0.08 + 0.26);
+        });
+      }
+    }
+
+    // Game State
+    const state = {
+      mode: '1p_4', // '1p_4', '1p_2', 'pass_4', 'pass_2'
+      rules: {
+        bloodGate: true,   // Must cut at least 1 opponent pawn to enter inner 3x3 ring
+        doubles: true,     // 2 friendly pawns on an unsafe cell form a protected Double & block single enemy pass
+        threeBust: false   // 3 consecutive 4/8 rolls bust the turn
+      },
+      players: [],
+      turnIndex: 0,
+      phase: 'ROLL',       // 'ROLL' | 'MOVE' | 'GAMEOVER'
+      rollPool: [],        // Array of { id, value, used }
+      selectedRollId: null,
+      consecutiveHighRolls: 0,
+      pairMoveMode: false, // Move 2 stacked pawns together as a Double
+      lastShells: [1, 1, 0, 1], // 1 = mouth up, 0 = hump up
+      lastRollText: 'Cast cowries to begin',
+      pathPreviewPlayer: -1, // -1 means current turn player
+      showStepNumbers: false,
+      hoveredPawn: null,     // { playerIdx, pawnIdx }
+      aiTimer: null
+    };
+
+    function createInitialPlayers() {
+      const activeIds = (state.mode === '1p_2' || state.mode === 'pass_2') ? [0, 2] : [0, 1, 2, 3];
+      return HOUSE_DEFS.map((def, idx) => {
+        const isActive = activeIds.includes(idx);
+        const isAI = isActive && (
+          (state.mode === '1p_4' && idx !== 0) ||
+          (state.mode === '1p_2' && idx !== 0)
+        );
+        return {
+          ...def,
+          active: isActive,
+          isAI: isAI,
+          hasHit: !state.rules.bloodGate, // Unlocked immediately only if bloodGate rule is OFF
+          cutsMade: 0,
+          // Each pawn starts at stepIndex 0 (on the player's crossed Home square, matching the photo!)
+          // and tracks outerLaps if orbiting while Blood Gate is locked.
+          pawns: [0, 1, 2, 3].map(pId => ({
+            id: pId,
+            step: 0,       // 0..24 (24 = Center Chakra Home)
+            finished: false
+          }))
+        };
+      });
+    }
+
+    function initMatch() {
+      if (state.aiTimer) {
+        clearTimeout(state.aiTimer);
+        state.aiTimer = null;
+      }
+      state.players = createInitialPlayers();
+      state.turnIndex = 0;
+      state.phase = 'ROLL';
+      state.rollPool = [];
+      state.selectedRollId = null;
+      state.consecutiveHighRolls = 0;
+      state.pairMoveMode = false;
+      state.lastShells = [1, 0, 1, 1];
+      state.lastRollText = 'Ready to Cast';
+      state.hoveredPawn = null;
+
+      document.getElementById('victoryModal').classList.add('hidden');
+      document.getElementById('moveLogList').innerHTML = '';
+      addLog('✨ New 5-House Asta Chamma (Chinnata) match started. All 4 pawns per house begin on their crossed Safe House (Step 0).', 'system');
+      updateUI();
+      drawBoard();
+    }
+
+    function addLog(msg, tone = 'normal') {
+      const list = document.getElementById('moveLogList');
+      const item = document.createElement('div');
+      let cls = 'text-stone-300 bg-stone-950/60 border-stone-800';
+      if (tone === 'cut') cls = 'text-rose-200 bg-rose-950/40 border-rose-700/50 font-medium';
+      if (tone === 'bonus') cls = 'text-amber-200 bg-amber-950/40 border-amber-700/40';
+      if (tone === 'home') cls = 'text-emerald-200 bg-emerald-950/40 border-emerald-700/50 font-semibold';
+      if (tone === 'system') cls = 'text-stone-400 bg-stone-950/40 border-stone-800 italic';
+
+      item.className = `px-2.5 py-1.5 rounded-lg border ${cls}`;
+      item.textContent = msg;
+      list.prepend(item);
+    }
+
+    // Get coordinates [r, c] for a player's pawn at a given step (0..24)
+    function getPawnCoord(playerIdx, step) {
+      return PLAYER_PATHS[playerIdx][step];
+    }
+
+    // Count pawns of each player at cell (r, c)
+    function getCellOccupants(r, c) {
+      const map = { 0: [], 1: [], 2: [], 3: [] };
+      state.players.forEach(p => {
+        if (!p.active) return;
+        p.pawns.forEach(pawn => {
+          const [pr, pc] = getPawnCoord(p.id, pawn.step);
+          if (pr === r && pc === c) {
+            map[p.id].push(pawn.id);
+          }
+        });
+      });
+      return map;
+    }
+
+    // Compute destination step and legality for moving `playerIdx`'s pawn from `startStep` by `rollVal`
+    // Supports:
+    // - Blood-Gate outer perimeter orbit when !player.hasHit and crossing step 15
+    // - Exact count to step 24
+    // - Double/Pair protection & outer blockade when state.rules.doubles is true
+    function evaluateMove(playerIdx, pawnIdx, rollVal, asPair = false) {
+      const player = state.players[playerIdx];
+      const pawn = player.pawns[pawnIdx];
+      if (!pawn || pawn.finished || pawn.step === 24) {
+        return { valid: false, reason: 'Pawn already reached the center Chakra' };
+      }
+
+      const [startR, startC] = getPawnCoord(playerIdx, pawn.step);
+      const startOccupants = getCellOccupants(startR, startC)[playerIdx];
+
+      // If asPair is requested, verify at least 2 friendly pawns are at startStep (and not finished)
+      if (asPair && startOccupants.length < 2) {
+        return { valid: false, reason: 'Need 2 friendly pawns on the same square to move as a Double' };
+      }
+      const movingCount = asPair ? 2 : 1;
+
+      // Trace step-by-step path for `rollVal` steps
+      let curStep = pawn.step;
+      const tracedSteps = [];
+
+      for (let s = 1; s <= rollVal; s++) {
+        let nextStep = curStep + 1;
+
+        // Check transition at Step 15 (Inner Gate)
+        if (curStep === 15) {
+          if (player.hasHit || !state.rules.bloodGate) {
+            nextStep = 16; // Enter inner clockwise loop!
+          } else {
+            // Blood-Gate is locked: continue orbiting the outer 16-cell perimeter!
+            nextStep = 0;
+          }
+        } else if (curStep >= 16) {
+          // Inside the inner ring (16..23) -> must land on 24 by exact count
+          if (nextStep > 24) {
+            return { valid: false, reason: 'Requires exact roll to enter the Center Sanctuary' };
+          }
+        }
+
+        const [nr, nc] = getPawnCoord(playerIdx, nextStep);
+
+        // Check Double Roadblock Rule on intermediate cells (s < rollVal)
+        // On the outer ring, a single pawn cannot jump past an opponent's Double on an unsafe cell
+        if (state.rules.doubles && s < rollVal && !isSafeCell(nr, nc) && movingCount === 1) {
+          const occ = getCellOccupants(nr, nc);
+          for (let oppId = 0; oppId < 4; oppId++) {
+            if (oppId !== playerIdx && occ[oppId].length >= 2) {
+              return { valid: false, reason: `Blocked by ${HOUSE_DEFS[oppId].short}'s Double at (${nr+1},${nc+1})` };
+            }
+          }
+        }
+
+        curStep = nextStep;
+        tracedSteps.push(curStep);
+      }
+
+      const targetStep = curStep;
+      const [tr, tc] = getPawnCoord(playerIdx, targetStep);
+      const safe = isSafeCell(tr, tc);
+      const targetOcc = getCellOccupants(tr, tc);
+
+      // Check enemy pawns on the landing square
+      let cutVictims = []; // Array of { oppId, pawnId }
+      if (!safe) {
+        for (let oppId = 0; oppId < 4; oppId++) {
+          if (oppId === playerIdx) continue;
+          const oppPawnsHere = targetOcc[oppId];
+          if (oppPawnsHere.length > 0) {
+            if (state.rules.doubles && oppPawnsHere.length >= 2 && movingCount === 1) {
+              // Single pawn cannot land on or cut an opponent's Double!
+              return { valid: false, reason: `A single pawn cannot cut ${HOUSE_DEFS[oppId].short}'s protected Double` };
+            }
+            // Capture! If moving as a Double onto a Double, cuts up to movingCount pawns; if single onto single, cuts the single
+            const numToCut = movingCount >= 2 ? Math.min(oppPawnsHere.length, 2) : 1;
+            for (let k = 0; k < numToCut; k++) {
+              cutVictims.push({ oppId, pawnId: oppPawnsHere[k] });
+            }
+          }
+        }
+      }
+
+      return {
+        valid: true,
+        startStep: pawn.step,
+        targetStep,
+        tracedSteps,
+        targetCoord: [tr, tc],
+        movingCount,
+        partnerPawnId: asPair ? startOccupants.find(id => id !== pawnIdx) : null,
+        cutVictims,
+        isHomeFinish: targetStep === 24,
+        formsDouble: !safe && (targetOcc[playerIdx].length + movingCount >= 2)
+      };
+    }
+
+    // List all valid moves for the current player across all unused rolls in rollPool
+    function getAllValidMovesForPlayer(playerIdx) {
+      const unusedRolls = state.rollPool.filter(r => !r.used);
+      const moves = [];
+      unusedRolls.forEach(rollObj => {
+        state.players[playerIdx].pawns.forEach(pawn => {
+          // Single move check
+          const resSingle = evaluateMove(playerIdx, pawn.id, rollObj.value, false);
+          if (resSingle.valid) {
+            moves.push({ rollObj, pawnId: pawn.id, asPair: false, eval: resSingle });
+          }
+          // Pair move check (if Doubles enabled)
+          if (state.rules.doubles) {
+            const resPair = evaluateMove(playerIdx, pawn.id, rollObj.value, true);
+            if (resPair.valid) {
+              moves.push({ rollObj, pawnId: pawn.id, asPair: true, eval: resPair });
+            }
+          }
+        });
+      });
+      return moves;
+    }
+
+    // Cast the 4 Cowrie Shells (or force a specific roll value for testing)
+    function castCowries(forcedValue = null) {
+      if (state.phase !== 'ROLL') return;
+      const player = state.players[state.turnIndex];
+
+      playSound('shells');
+
+      let shells = [0, 0, 0, 0];
+      if (forcedValue === null) {
+        shells = [0, 1, 2, 3].map(() => (Math.random() < 0.5 ? 1 : 0));
+      } else {
+        if (forcedValue === 1) shells = [1, 0, 0, 0];
+        else if (forcedValue === 2) shells = [1, 1, 0, 0];
+        else if (forcedValue === 3) shells = [1, 1, 1, 0];
+        else if (forcedValue === 4) shells = [1, 1, 1, 1];
+        else if (forcedValue === 8) shells = [0, 0, 0, 0];
+        // Shuffle shells array so forced rolls look natural
+        shells.sort(() => Math.random() - 0.5);
+      }
+
+      state.lastShells = shells;
+      const mouthsUp = shells.reduce((a, b) => a + b, 0);
+      const rollValue = mouthsUp === 0 ? 8 : mouthsUp;
+
+      const rollNames = {
+        1: 'Okkati / Dayam (1)',
+        2: 'Rendu / Duga (2)',
+        3: 'Moodu / Thiga (3)',
+        4: 'CHAMMA / CHAUKA (4) 🌟',
+        8: 'ASHTA / BARA (8) 🔥'
+      };
+      state.lastRollText = rollNames[rollValue];
+
+      // Animate cowrie shells
+      renderCowrieShells(true);
+
+      const isBonusRoll = (rollValue === 4 || rollValue === 8);
+      if (isBonusRoll) {
+        state.consecutiveHighRolls += 1;
+      } else {
+        state.consecutiveHighRolls = 0;
+      }
+
+      // Check 3x Consecutive High-Roll Bust Rule (Moor Naak Shyam)
+      if (state.rules.threeBust && state.consecutiveHighRolls >= 3) {
+        addLog(`⚡ ${player.short} rolled three consecutive 4s/8s (Moor Naak Shyam)! Turn busts and passes.`, 'cut');
+        state.rollPool = [];
+        state.selectedRollId = null;
+        endTurn();
+        return;
+      }
+
+      // Add roll to pool
+      const newRollObj = {
+        id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        value: rollValue,
+        used: false
+      };
+      state.rollPool.push(newRollObj);
+      if (!state.selectedRollId) {
+        state.selectedRollId = newRollObj.id;
+      }
+
+      if (isBonusRoll) {
+        addLog(`🐚 ${player.short} cast ${rollNames[rollValue]} — Bonus Throw earned!`, 'bonus');
+        state.phase = 'ROLL'; // Can roll again before moving!
+        updateUI();
+        drawBoard();
+        if (player.isAI) {
+          scheduleAIMove();
+        }
+      } else {
+        addLog(`🐚 ${player.short} cast ${rollNames[rollValue]}.`, 'normal');
+        state.phase = 'MOVE';
+        checkAutoPassOrMovePhase();
+      }
+    }
+
+    function checkAutoPassOrMovePhase() {
+      const player = state.players[state.turnIndex];
+      const allValid = getAllValidMovesForPlayer(player.id);
+
+      if (allValid.length === 0) {
+        addLog(`⏭️ ${player.short} has no legal moves for [${state.rollPool.filter(r => !r.used).map(r => r.value).join(', ')}]. Turn passes.`, 'system');
+        updateUI();
+        drawBoard();
+        setTimeout(() => {
+          endTurn();
+        }, 650);
+        return;
+      }
+
+      // Ensure selectedRollId points to an unused roll
+      const currentSelected = state.rollPool.find(r => r.id === state.selectedRollId && !r.used);
+      if (!currentSelected) {
+        const firstUnused = state.rollPool.find(r => !r.used);
+        state.selectedRollId = firstUnused ? firstUnused.id : null;
+      }
+
+      updateUI();
+      drawBoard();
+
+      if (player.isAI) {
+        scheduleAIMove();
+      }
+    }
+
+    // Execute a validated move on the board
+    function executePawnMove(playerIdx, pawnIdx, rollId, usePairMode) {
+      const player = state.players[playerIdx];
+      const rollObj = state.rollPool.find(r => r.id === rollId && !r.used);
+      if (!rollObj) return false;
+
+      // Try requested pair mode first; if invalid and usePairMode was true, fallback to single
+      let moveEval = evaluateMove(playerIdx, pawnIdx, rollObj.value, usePairMode);
+      if (!moveEval.valid && usePairMode) {
+        moveEval = evaluateMove(playerIdx, pawnIdx, rollObj.value, false);
+      }
+      if (!moveEval.valid) return false;
+
+      // Mark roll used
+      rollObj.used = true;
+
+      // Move primary pawn (and partner pawn if moving as a Double)
+      const pawn = player.pawns[pawnIdx];
+      pawn.step = moveEval.targetStep;
+      if (pawn.step === 24) pawn.finished = true;
+
+      if (moveEval.movingCount === 2 && moveEval.partnerPawnId !== null) {
+        const partner = player.pawns[moveEval.partnerPawnId];
+        partner.step = moveEval.targetStep;
+        if (partner.step === 24) partner.finished = true;
+      }
+
+      // Handle Cuts / Captures!
+      let earnedCutBonus = false;
+      if (moveEval.cutVictims.length > 0) {
+        earnedCutBonus = true;
+        moveEval.cutVictims.forEach(victim => {
+          const oppPlayer = state.players[victim.oppId];
+          const oppPawn = oppPlayer.pawns[victim.pawnId];
+          oppPawn.step = 0; // Sent back to starting Home cross!
+          oppPawn.finished = false;
+          player.cutsMade += 1;
+          const unlockedNow = !player.hasHit;
+          player.hasHit = true;
+          addLog(
+            `⚔️ ${player.short} CUT ${oppPlayer.short}'s pawn at (${moveEval.targetCoord[0]+1},${moveEval.targetCoord[1]+1})! ${unlockedNow ? '🔓 Inner Blood-Gate UNLOCKED & ' : ''}Bonus Throw awarded!`,
+            'cut'
+          );
+        });
+        playSound('cut');
+      } else if (moveEval.isHomeFinish) {
+        playSound('home');
+        addLog(`☸️ ${player.short} brought ${moveEval.movingCount === 2 ? 'a Double pair' : 'a pawn'} home into the central Ashoka Chakra!`, 'home');
+      } else {
+        playSound('step');
+        const label = moveEval.movingCount === 2 ? 'Double pair' : `Pawn #${pawnIdx + 1}`;
+        const orbitNote = (moveEval.startStep <= 15 && moveEval.targetStep < moveEval.startStep)
+          ? ' (continuing outer orbit — need 1 cut to enter inner ring)'
+          : '';
+        addLog(`${player.short} advanced ${label} by ${rollObj.value} to Step ${moveEval.targetStep}${orbitNote}.`, 'normal');
+      }
+
+      // Check Win Condition (all 4 pawns at Step 24)
+      if (player.pawns.every(p => p.step === 24)) {
+        state.phase = 'GAMEOVER';
+        playSound('home');
+        addLog(`🏆 VICTORY! ${player.name} (${player.gemName}) has brought all 4 pawns to the center sanctuary!`, 'home');
+        showVictoryModal(player);
+        updateUI();
+        drawBoard();
+        return true;
+      }
+
+      // If cut earned a bonus throw, switch back to ROLL phase so player can cast cowries!
+      if (earnedCutBonus) {
+        state.phase = 'ROLL';
+        const nextUnused = state.rollPool.find(r => !r.used);
+        state.selectedRollId = nextUnused ? nextUnused.id : null;
+        updateUI();
+        drawBoard();
+        if (player.isAI) scheduleAIMove();
+        return true;
+      }
+
+      // Check remaining unused rolls in pool
+      const remainingUnused = state.rollPool.filter(r => !r.used);
+      if (remainingUnused.length > 0) {
+        state.selectedRollId = remainingUnused[0].id;
+        checkAutoPassOrMovePhase();
+      } else {
+        endTurn();
+      }
+      return true;
+    }
+
+    function endTurn() {
+      if (state.phase === 'GAMEOVER') return;
+      state.rollPool = [];
+      state.selectedRollId = null;
+      state.consecutiveHighRolls = 0;
+      state.phase = 'ROLL';
+
+      // Advance to next active player
+      for (let i = 1; i <= 4; i++) {
+        const cand = (state.turnIndex + i) % 4;
+        if (state.players[cand].active) {
+          state.turnIndex = cand;
+          break;
+        }
+      }
+
+      updateUI();
+      drawBoard();
+
+      if (state.players[state.turnIndex].isAI) {
+        scheduleAIMove();
+      }
+    }
+
+    // Tactical AI Decision Engine
+    function scheduleAIMove() {
+      if (state.aiTimer) clearTimeout(state.aiTimer);
+      state.aiTimer = setTimeout(() => {
+        const player = state.players[state.turnIndex];
+        if (!player || !player.isAI || state.phase === 'GAMEOVER') return;
+
+        if (state.phase === 'ROLL') {
+          castCowries();
+          return;
+        }
+
+        if (state.phase === 'MOVE') {
+          const allMoves = getAllValidMovesForPlayer(player.id);
+          if (allMoves.length === 0) {
+            endTurn();
+            return;
+          }
+
+          // Score each candidate move tactically:
+          // 1. Cutting an enemy pawn (+200, or +350 if Blood Gate is still locked!)
+          // 2. Reaching Center Home Step 24 (+160)
+          // 3. Landing on a Safe House X (+55)
+          // 4. Forming a protective Double on an unsafe cell (+35)
+          // 5. Entering the inner ring (+40)
+          // 6. Advancing the furthest pawn (+step)
+          let bestMove = allMoves[0];
+          let bestScore = -9999;
+
+          allMoves.forEach(m => {
+            let score = m.eval.targetStep * 2;
+            if (m.eval.cutVictims.length > 0) {
+              score += (!player.hasHit ? 360 : 210) * m.eval.cutVictims.length;
+            }
+            if (m.eval.isHomeFinish) score += 170;
+            const [tr, tc] = m.eval.targetCoord;
+            if (isSafeCell(tr, tc) && m.eval.targetStep > 0) score += 55;
+            if (m.eval.formsDouble) score += 35;
+            if (m.eval.startStep <= 15 && m.eval.targetStep >= 16) score += 45;
+            // Slight caution about leaving a safe cell unless cutting or finishing
+            const [sr, sc] = getPawnCoord(player.id, m.eval.startStep);
+            if (isSafeCell(sr, sc) && !isSafeCell(tr, tc) && m.eval.cutVictims.length === 0) {
+              score -= 12;
+            }
+            if (score > bestScore) {
+              bestScore = score;
+              bestMove = m;
+            }
+          });
+
+          executePawnMove(player.id, bestMove.pawnId, bestMove.rollObj.id, bestMove.asPair);
+        }
+      }, 620);
+    }
+
+    function showVictoryModal(winner) {
+      const modal = document.getElementById('victoryModal');
+      document.getElementById('victoryTitle').textContent = `${winner.name} (${winner.gemName}) Wins!`;
+      document.getElementById('victorySub').textContent =
+        `Completed the 25-step Chinnata spiral with ${winner.cutsMade} capture${winner.cutsMade === 1 ? '' : 's'}!`;
+      modal.classList.remove('hidden');
+    }
+
+    /*************************************************************************
+- CANVAS 2D RENDERER — KHADI BOARD, SAFE CROSSES, ASHOKA CHAKRA & PAWNS
+     *************************************************************************/
+    const canvas = document.getElementById('boardCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Store clickable hitboxes for pawns and cells during render
+    let pawnHitboxes = []; // { playerIdx, pawnIdx, x, y, r, cellR, cellC }
+
+    function drawBoard() {
+      const W = canvas.width;
+      const H = canvas.height;
+      const pad = 12;
+      const gridW = W - pad * 2;
+      const cellS = gridW / 5;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // 1. Subtle Khadi base fill inside grid
+      ctx.fillStyle = '#f5f0e6';
+      ctx.fillRect(pad, pad, gridW, gridW);
+
+      // 2. Highlight active route path (either chosen pathPreviewPlayer or current turn player)
+      const routePlayerIdx = state.pathPreviewPlayer === -1 ? state.turnIndex : state.pathPreviewPlayer;
+      const routePath = PLAYER_PATHS[routePlayerIdx];
+      const routeHouse = HOUSE_DEFS[routePlayerIdx];
+
+      // Draw subtle spiral path ribbon
+      ctx.save();
+      ctx.strokeStyle = routeHouse.primary + '30';
+      ctx.lineWidth = 10;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      routePath.forEach(([r, c], idx) => {
+        const cx = pad + (c + 0.5) * cellS;
+        const cy = pad + (r + 0.5) * cellS;
+        if (idx === 0) ctx.moveTo(cx, cy);
+        else ctx.lineTo(cx, cy);
+      });
+      ctx.stroke();
+      ctx.restore();
+
+      // 3. Draw 5x5 cells, Safe House diagonal crosses, and Inner Loop border accent
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 5; c++) {
+          const x = pad + c * cellS;
+          const y = pad + r * cellS;
+
+          // Subtle tint for inner 3x3 ring (r in 1..3, c in 1..3)
+          if (r >= 1 && r <= 3 && c >= 1 && c <= 3 && !(r === 2 && c === 2)) {
+            ctx.fillStyle = 'rgba(30, 58, 138, 0.04)';
+            ctx.fillRect(x, y, cellS, cellS);
+          }
+
+          // Safe house diagonal crosses (4 outer homes + center square)
+          if (isSafeCell(r, c)) {
+            ctx.save();
+            ctx.strokeStyle = '#172554';
+            ctx.lineWidth = 3.5;
+            ctx.beginPath();
+            ctx.moveTo(x + 3, y + 3);
+            ctx.lineTo(x + cellS - 3, y + cellS - 3);
+            ctx.moveTo(x + cellS - 3, y + 3);
+            ctx.lineTo(x + 3, y + cellS - 3);
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // Center square (2,2): Draw authentic 24-spoke Ashoka Chakra medallion in the center
+          if (r === 2 && c === 2) {
+            const cx = x + cellS / 2;
+            const cy = y + cellS / 2;
+            const chakraR = cellS * 0.25;
+
+            ctx.save();
+            ctx.fillStyle = '#f5f0e6';
+            ctx.beginPath();
+            ctx.arc(cx, cy, chakraR + 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = '#172554';
+            ctx.lineWidth = 2.6;
+            ctx.beginPath();
+            ctx.arc(cx, cy, chakraR, 0, Math.PI * 2);
+            ctx.stroke();
+
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.arc(cx, cy, chakraR * 0.82, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 24 spokes
+            for (let s = 0; s < 24; s++) {
+              const ang = (s * Math.PI * 2) / 24;
+              ctx.beginPath();
+              ctx.moveTo(cx, cy);
+              ctx.lineTo(cx + Math.cos(ang) * chakraR * 0.82, cy + Math.sin(ang) * chakraR * 0.82);
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+
+          // Optional Step Number badge for routePlayerIdx
+          if (state.showStepNumbers) {
+            const stepIdx = routePath.findIndex(([pr, pc]) => pr === r && pc === c);
+            if (stepIdx !== -1) {
+              ctx.save();
+              ctx.fillStyle = routeHouse.primary;
+              ctx.font = 'bold 11px Inter, sans-serif';
+              ctx.fillText('#' + stepIdx, x + 6, y + 15);
+              ctx.restore();
+            }
+          }
+        }
+      }
+
+      // 4. Draw Indigo Block-Print Grid Lines
+      ctx.save();
+      ctx.strokeStyle = '#172554';
+      ctx.lineWidth = 4.5;
+      ctx.strokeRect(pad, pad, gridW, gridW);
+
+      ctx.lineWidth = 3.5;
+      for (let i = 1; i < 5; i++) {
+        // Horizontal
+        ctx.beginPath();
+        ctx.moveTo(pad, pad + i * cellS);
+        ctx.lineTo(pad + gridW, pad + i * cellS);
+        ctx.stroke();
+        // Vertical
+        ctx.beginPath();
+        ctx.moveTo(pad + i * cellS, pad);
+        ctx.lineTo(pad + i * cellS, pad + gridW);
+        ctx.stroke();
+      }
+
+      // Highlight Inner 3x3 Gate Boundary with a subtle dashed gold inner frame
+      ctx.strokeStyle = 'rgba(180, 83, 9, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.strokeRect(pad + cellS + 2, pad + cellS + 2, cellS * 3 - 4, cellS * 3 - 4);
+      ctx.restore();
+
+      // 5. If in MOVE phase and a roll is selected, highlight legal destination squares and hovered pawn's path
+      const activePlayer = state.players[state.turnIndex];
+      const selectedRollObj = state.rollPool.find(r => r.id === state.selectedRollId && !r.used);
+      const movablePawnIds = new Set();
+
+      if (state.phase === 'MOVE' && selectedRollObj && activePlayer && !activePlayer.isAI) {
+        activePlayer.pawns.forEach(p => {
+          let ev = evaluateMove(activePlayer.id, p.id, selectedRollObj.value, state.pairMoveMode);
+          if (!ev.valid && state.pairMoveMode) {
+            ev = evaluateMove(activePlayer.id, p.id, selectedRollObj.value, false);
+          }
+          if (ev.valid) {
+            movablePawnIds.add(p.id);
+            // If this pawn is hovered (or all movable pawns), draw target highlight
+            const isHovered = state.hoveredPawn &&
+              state.hoveredPawn.playerIdx === activePlayer.id &&
+              state.hoveredPawn.pawnIdx === p.id;
+
+            const [tr, tc] = ev.targetCoord;
+            const tx = pad + tc * cellS;
+            const ty = pad + tr * cellS;
+
+            ctx.save();
+            ctx.fillStyle = ev.cutVictims.length > 0
+              ? 'rgba(225, 29, 72, 0.24)'
+              : 'rgba(16, 185, 129, 0.22)';
+            ctx.fillRect(tx + 4, ty + 4, cellS - 8, cellS - 8);
+
+            ctx.strokeStyle = ev.cutVictims.length > 0 ? '#e11d48' : '#059669';
+            ctx.lineWidth = isHovered ? 3.5 : 2;
+            ctx.strokeRect(tx + 5, ty + 5, cellS - 10, cellS - 10);
+
+            // If hovered, draw step-by-step animated trajectory line
+            if (isHovered) {
+              ctx.strokeStyle = activePlayer.primary;
+              ctx.lineWidth = 4;
+              ctx.setLineDash([5, 4]);
+              ctx.beginPath();
+              const [sr, sc] = getPawnCoord(activePlayer.id, ev.startStep);
+              ctx.moveTo(pad + (sc + 0.5) * cellS, pad + (sr + 0.5) * cellS);
+              ev.tracedSteps.forEach(st => {
+                const [pr, pc] = getPawnCoord(activePlayer.id, st);
+                ctx.lineTo(pad + (pc + 0.5) * cellS, pad + (pr + 0.5) * cellS);
+              });
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+        });
+      }
+
+      // 6. Render All Pawns (Tumbled Agate Gemstone Pebbles matching the photo!)
+      pawnHitboxes = [];
+      for (let r = 0; r < 5; r++) {
+        for (let c = 0; c < 5; c++) {
+          // Gather all pawns on (r, c)
+          const cellPawns = [];
+          state.players.forEach(pl => {
+            if (!pl.active) return;
+            pl.pawns.forEach(pw => {
+              const [pr, pc] = getPawnCoord(pl.id, pw.step);
+              if (pr === r && pc === c) {
+                cellPawns.push({ player: pl, pawn: pw });
+              }
+            });
+          });
+
+          if (cellPawns.length === 0) continue;
+
+          const cellCx = pad + (c + 0.5) * cellS;
+          const cellCy = pad + (r + 0.5) * cellS;
+
+          // Position tokens cleanly:
+          // On crossed Safe Houses (like the photo), arrange in the 4 triangles of the X!
+          const count = cellPawns.length;
+          cellPawns.forEach((item, idx) => {
+            let px = cellCx;
+            let py = cellCy;
+            let radius = cellS * 0.165;
+
+            if (isSafeCell(r, c) && count <= 4 && !(r === 2 && c === 2)) {
+              // Exact 4-quadrant triangle layout inside the X cross just like the Bharataha photo!
+              const offsets = [
+                [0, -cellS * 0.27], // Top triangle
+                [cellS * 0.27, 0],  // Right triangle
+                [0, cellS * 0.27],  // Bottom triangle
+                [-cellS * 0.27, 0]  // Left triangle
+              ];
+              px = cellCx + offsets[idx][0];
+              py = cellCy + offsets[idx][1];
+            } else if (count === 1) {
+              px = cellCx;
+              py = cellCy;
+              radius = cellS * 0.19;
+            } else {
+              // Arrange in a ring around cell center
+              const ringR = count <= 4 ? cellS * 0.24 : cellS * 0.29;
+              const angle = (idx * Math.PI * 2) / count - Math.PI / 4;
+              px = cellCx + Math.cos(angle) * ringR;
+              py = cellCy + Math.sin(angle) * ringR;
+              radius = count > 4 ? cellS * 0.13 : cellS * 0.155;
+            }
+
+            const isSelectable =
+              state.phase === 'MOVE' &&
+              item.player.id === state.turnIndex &&
+              movablePawnIds.has(item.pawn.id);
+
+            drawGemstonePawn(ctx, px, py, radius, item.player, item.pawn.id, isSelectable);
+
+            pawnHitboxes.push({
+              playerIdx: item.player.id,
+              pawnIdx: item.pawn.id,
+              x: px,
+              y: py,
+              r: radius + 6,
+              cellR: r,
+              cellC: c
+            });
+          });
+
+          // If a player has formed a protected Double on an unsafe cell, draw a "2×" Double Shield badge!
+          if (state.rules.doubles && !isSafeCell(r, c)) {
+            const occ = getCellOccupants(r, c);
+            for (let pid = 0; pid < 4; pid++) {
+              if (occ[pid].length >= 2) {
+                ctx.save();
+                ctx.fillStyle = '#172554';
+                ctx.strokeStyle = '#fbbf24';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(cellCx - 13, cellCy - 9, 26, 18, 6);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#fef3c7';
+                ctx.font = 'bold 10px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`🔗${occ[pid].length}×`, cellCx, cellCy);
+                ctx.restore();
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Draw an organic tumbled agate pebble token (like the colorful stones in the uploaded photo)
+    function drawGemstonePawn(ctx, x, y, r, player, pawnId, isSelectable) {
+      ctx.save();
+
+      // Selectable pulsing halo
+      if (isSelectable) {
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 3.5;
+        ctx.beginPath();
+        ctx.arc(x, y, r + 5, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Drop shadow
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.42)';
+      ctx.shadowBlur = 6;
+      ctx.shadowOffsetX = 1.5;
+      ctx.shadowOffsetY = 2.5;
+
+      // Slight organic rounded-squircle pebble shape
+      ctx.translate(x, y);
+      ctx.rotate((pawnId * 0.45) + player.id * 0.3);
+
+      const grad = ctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r * 1.1);
+      grad.addColorStop(0, player.light);
+      grad.addColorStop(0.65, player.primary);
+      grad.addColorStop(1, player.dark);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(-r, -r * 0.88, r * 2, r * 1.76, r * 0.55);
+      ctx.fill();
+
+      // Glossy mineral highlight
+      ctx.shadowColor = 'transparent';
+      ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.32)';
+      ctx.beginPath();
+      ctx.ellipse(-r * 0.28, -r * 0.3, r * 0.38, r * 0.18, -0.4, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    /*************************************************************************
+- UI RENDERING & INTERACTION HANDLERS
+     *************************************************************************/
+    function renderCowrieShells(animate = false) {
+      const container = document.getElementById('cowrieContainer');
+      container.innerHTML = '';
+
+      state.lastShells.forEach((mouthUp, idx) => {
+        const shellDiv = document.createElement('div');
+        shellDiv.className = `flex flex-col items-center justify-center p-2 rounded-xl bg-stone-900/90 border ${
+          mouthUp ? 'border-amber-500/40' : 'border-stone-700'
+        } ${animate ? 'shell-anim' : ''}`;
+
+        // Authentic SVG Cowrie Shell (Mouth Up with serrated aperture vs Smooth Inverted Hump)
+        const svgHTML = mouthUp
+          ? `<svg viewBox="0 0 64 44" class="w-12 h-8 drop-shadow">
+               <ellipse cx="32" cy="22" rx="27" ry="18" fill="#fdfbf7" stroke="#d6cfc2" stroke-width="2"/>
+               <ellipse cx="32" cy="22" rx="22" ry="13" fill="#f5efe4"/>
+               <path d="M12 22 Q32 18 52 22 Q32 26 12 22 Z" fill="#292524"/>
+               <path d="M16 19 L16 25 M21 18 L21 26 M26 18 L26 26 M32 18 L32 26 M38 18 L38 26 M43 18 L43 26 M48 19 L48 25" stroke="#e7e5e4" stroke-width="1.4" stroke-linecap="round"/>
+             </svg>`
+          : `<svg viewBox="0 0 64 44" class="w-12 h-8 drop-shadow">
+               <ellipse cx="32" cy="22" rx="27" ry="18" fill="#f5efe6" stroke="#d6cfc2" stroke-width="2"/>
+               <ellipse cx="28" cy="17" rx="16" ry="8" fill="#ffffff" opacity="0.65"/>
+               <path d="M10 26 Q32 33 54 26" fill="none" stroke="#d6c7b2" stroke-width="2"/>
+             </svg>`;
+
+        shellDiv.innerHTML = `
+          ${svgHTML}
+          <span class="text-[10px] font-semibold mt-1 ${mouthUp ? 'text-amber-300' : 'text-stone-400'}">
+            ${mouthUp ? 'Mouth Up (1)' : 'Hump (0)'}
+          </span>
+        `;
+        container.appendChild(shellDiv);
+      });
+    }
+
+    function updateUI() {
+      const currentPlayer = state.players[state.turnIndex];
+
+      // Header Turn Indicator
+      const dot = document.getElementById('turnColorDot');
+      dot.style.backgroundColor = currentPlayer.primary;
+      document.getElementById('turnPlayerTitle').textContent =
+        `${currentPlayer.name} (${currentPlayer.gemName})${currentPlayer.isAI ? ' • AI' : ''}`;
+
+      const statusPill = document.getElementById('turnStatusPill');
+      if (state.phase === 'ROLL') {
+        statusPill.textContent = currentPlayer.isAI ? 'AI Casting...' : 'Cast Cowries';
+        statusPill.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+      } else if (state.phase === 'MOVE') {
+        statusPill.textContent = currentPlayer.isAI ? 'AI Moving...' : 'Select Pawn to Move';
+        statusPill.className = 'px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+      } else {
+        statusPill.textContent = 'Match Complete';
+      }
+
+      document.getElementById('lastRollCallout').textContent = state.lastRollText;
+
+      // Throw button state
+      const btnThrow = document.getElementById('btnThrowCowries');
+      btnThrow.disabled = (state.phase !== 'ROLL' || currentPlayer.isAI);
+      document.getElementById('btnThrowLabel').textContent =
+        state.rollPool.some(r => !r.used) ? 'Bonus Throw! Cast Again' : 'Throw Cowrie Shells';
+
+      // Pair mode button state
+      const btnPair = document.getElementById('btnTogglePairMove');
+      document.getElementById('pairModeLabel').textContent = state.pairMoveMode ? 'Move: Pair (2×)' : 'Move: Single';
+      btnPair.className = state.pairMoveMode
+        ? 'px-3 py-2.5 rounded-xl bg-amber-500/20 border border-amber-400 text-xs font-bold text-amber-300 transition flex items-center gap-1.5'
+        : 'px-3 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 border border-stone-700 text-xs font-semibold text-stone-300 transition flex items-center gap-1.5';
+
+      // Render Roll Pool chips
+      const poolContainer = document.getElementById('rollPoolContainer');
+      const unusedCount = state.rollPool.filter(r => !r.used).length;
+      document.getElementById('rollPoolHint').textContent = `${unusedCount} roll${unusedCount === 1 ? '' : 's'} available`;
+
+      if (state.rollPool.length === 0) {
+        poolContainer.innerHTML = `<span class="text-xs text-stone-500 italic">Cast the shells to generate move steps...</span>`;
+      } else {
+        poolContainer.innerHTML = '';
+        state.rollPool.forEach(rObj => {
+          const btn = document.createElement('button');
+          const isSel = rObj.id === state.selectedRollId && !rObj.used;
+          btn.disabled = rObj.used;
+          btn.className = rObj.used
+            ? 'px-3 py-1 rounded-lg bg-stone-900 border border-stone-800 text-stone-600 line-through text-xs font-bold'
+            : isSel
+              ? 'px-3 py-1 rounded-lg bg-amber-500 text-stone-950 font-extrabold text-xs shadow ring-2 ring-amber-300 transition'
+              : 'px-3 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-amber-300 border border-amber-500/40 font-bold text-xs transition';
+          btn.textContent = rObj.value === 4 ? '4 (Chamma)' : rObj.value === 8 ? '8 (Ashta)' : `+${rObj.value}`;
+          btn.addEventListener('click', () => {
+            if (!rObj.used) {
+              state.selectedRollId = rObj.id;
+              updateUI();
+              drawBoard();
+            }
+          });
+          poolContainer.appendChild(btn);
+        });
+      }
+
+      // Render 4 Player House Cards
+      const grid = document.getElementById('playerCardsGrid');
+      grid.innerHTML = '';
+      state.players.forEach(p => {
+        if (!p.active) return;
+        const isTurn = p.id === state.turnIndex;
+        const homeCount = p.pawns.filter(pw => pw.step === 24).length;
+        const innerCount = p.pawns.filter(pw => pw.step >= 16 && pw.step < 24).length;
+
+        const card = document.createElement('div');
+        card.className = `rounded-xl p-3 border transition ${
+          isTurn
+            ? 'bg-stone-900 border-amber-400/80 shadow-lg shadow-amber-500/5'
+            : 'bg-stone-900/60 border-stone-800 opacity-85'
+        }`;
+
+        const gateBadge = p.hasHit
+          ? `<span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-700/50">🔓 Inner Gate Open</span>`
+          : `<span class="text-[10px] px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-700/50">🔒 Need 1 Cut</span>`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-1.5">
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full inline-block" style="background:${p.primary}"></span>
+              <span class="text-xs font-bold text-stone-100">${p.short}${p.isAI ? ' (AI)' : ''}</span>
+            </div>
+            ${gateBadge}
+          </div>
+          <div class="flex items-center justify-between text-[11px] text-stone-400 mt-2">
+            <span>☸️ Home: <strong class="text-stone-100">${homeCount}/4</strong></span>
+            <span>↻ Inner: <strong class="text-stone-100">${innerCount}</strong></span>
+            <span>⚔️ Cuts: <strong class="text-amber-300">${p.cutsMade}</strong></span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Rule summary badge
+      document.getElementById('ruleActiveSummary').textContent =
+        `Blood-Gate: ${state.rules.bloodGate ? 'ON' : 'OFF'} • Doubles: ${state.rules.doubles ? 'ON' : 'OFF'} • 3× Bust: ${state.rules.threeBust ? 'ON' : 'OFF'}`;
+    }
+
+    // Canvas Click & Hover Interaction
+    function getCanvasMousePos(evt) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+      };
+    }
+
+    canvas.addEventListener('mousemove', (evt) => {
+      const pos = getCanvasMousePos(evt);
+      const pad = 12;
+      const cellS = (canvas.width - pad * 2) / 5;
+      const c = Math.floor((pos.x - pad) / cellS);
+      const r = Math.floor((pos.y - pad) / cellS);
+
+      const tooltip = document.getElementById('boardHoverTooltip');
+      if (r >= 0 && r < 5 && c >= 0 && c < 5) {
+        const routeIdx = state.pathPreviewPlayer === -1 ? state.turnIndex : state.pathPreviewPlayer;
+        const stepNum = PLAYER_PATHS[routeIdx].findIndex(([pr, pc]) => pr === r && pc === c);
+        const zoneLabel = (r === 2 && c === 2)
+          ? '☸️ Center Sanctuary (Step 24)'
+          : isSafeCell(r, c)
+            ? `🛡️ Safe House X (Step ${stepNum})`
+            : stepNum >= 16
+              ? `↻ Inner Loop (Step ${stepNum})`
+              : `↺ Outer Track (Step ${stepNum})`;
+        tooltip.textContent = zoneLabel;
+        tooltip.classList.remove('hidden');
+      } else {
+        tooltip.classList.add('hidden');
+      }
+
+      // Check hovered pawn for trajectory preview
+      let foundHover = null;
+      for (let i = pawnHitboxes.length - 1; i >= 0; i--) {
+        const hb = pawnHitboxes[i];
+        const dist = Math.hypot(pos.x - hb.x, pos.y - hb.y);
+        if (dist <= hb.r) {
+          foundHover = { playerIdx: hb.playerIdx, pawnIdx: hb.pawnIdx };
+          break;
+        }
+      }
+
+      const prevHover = state.hoveredPawn;
+      if (JSON.stringify(prevHover) !== JSON.stringify(foundHover)) {
+        state.hoveredPawn = foundHover;
+        drawBoard();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      document.getElementById('boardHoverTooltip').classList.add('hidden');
+      if (state.hoveredPawn) {
+        state.hoveredPawn = null;
+        drawBoard();
+      }
+    });
+
+    canvas.addEventListener('click', (evt) => {
+      if (state.phase !== 'MOVE') return;
+      const currentPlayer = state.players[state.turnIndex];
+      if (!currentPlayer || currentPlayer.isAI) return;
+      if (!state.selectedRollId) return;
+
+      const pos = getCanvasMousePos(evt);
+
+      // 1. Check direct click on a current player's pawn hitbox
+      for (let i = pawnHitboxes.length - 1; i >= 0; i--) {
+        const hb = pawnHitboxes[i];
+        if (hb.playerIdx === currentPlayer.id && Math.hypot(pos.x - hb.x, pos.y - hb.y) <= hb.r) {
+          const moved = executePawnMove(currentPlayer.id, hb.pawnIdx, state.selectedRollId, state.pairMoveMode);
+          if (moved) return;
+        }
+      }
+
+      // 2. Also allow clicking anywhere inside the cell containing a movable pawn of the current player
+      const pad = 12;
+      const cellS = (canvas.width - pad * 2) / 5;
+      const c = Math.floor((pos.x - pad) / cellS);
+      const r = Math.floor((pos.y - pad) / cellS);
+      if (r >= 0 && r < 5 && c >= 0 && c < 5) {
+        for (const pw of currentPlayer.pawns) {
+          const [pr, pc] = getPawnCoord(currentPlayer.id, pw.step);
+          if (pr === r && pc === c) {
+            const moved = executePawnMove(currentPlayer.id, pw.id, state.selectedRollId, state.pairMoveMode);
+            if (moved) return;
+          }
+        }
+      }
+    });
+
+    // Wire up Controls & Navigation Tabs
+    document.getElementById('btnThrowCowries').addEventListener('click', () => {
+      castCowries();
+    });
+
+    document.getElementById('btnTogglePairMove').addEventListener('click', () => {
+      state.pairMoveMode = !state.pairMoveMode;
+      updateUI();
+      drawBoard();
+    });
+
+    document.querySelectorAll('.force-roll-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = parseInt(btn.getAttribute('data-force-roll'), 10);
+        if (state.phase === 'MOVE') {
+          // Allow adding a test roll even in MOVE phase for immediate experimentation
+          state.phase = 'ROLL';
+        }
+        castCowries(val);
+      });
+    });
+
+    document.querySelectorAll('.path-preview-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.pathPreviewPlayer = parseInt(btn.getAttribute('data-path-player'), 10);
+        document.querySelectorAll('.path-preview-btn').forEach(b => {
+          b.classList.remove('bg-amber-500', 'text-stone-950', 'font-semibold');
+          b.classList.add('bg-stone-800');
+        });
+        btn.classList.remove('bg-stone-800');
+        btn.classList.add('bg-amber-500', 'text-stone-950', 'font-semibold');
+        drawBoard();
+      });
+    });
+
+    document.getElementById('chkShowCoords').addEventListener('change', (e) => {
+      state.showStepNumbers = e.target.checked;
+      drawBoard();
+    });
+
+    // Top Navigation Tabs
+    function switchTab(activeId) {
+      const tabs = [
+        { btn: 'tabBtnPlay', view: 'viewPlay' },
+        { btn: 'tabBtnAnalysis', view: 'viewAnalysis' },
+        { btn: 'tabBtnRules', view: 'viewRules' }
+      ];
+      tabs.forEach(t => {
+        const b = document.getElementById(t.btn);
+        const v = document.getElementById(t.view);
+        if (t.btn === activeId) {
+          b.className = 'px-2.5 py-1 rounded-md text-xs font-semibold bg-amber-500 text-stone-950 transition';
+          v.classList.remove('hidden');
+        } else {
+          b.className = 'px-2.5 py-1 rounded-md text-xs font-semibold text-stone-300 hover:text-white transition';
+          v.classList.add('hidden');
+        }
+      });
+      if (activeId === 'tabBtnPlay') drawBoard();
+    }
+
+    document.getElementById('tabBtnPlay').addEventListener('click', () => switchTab('tabBtnPlay'));
+    document.getElementById('tabBtnAnalysis').addEventListener('click', () => switchTab('tabBtnAnalysis'));
+    document.getElementById('tabBtnRules').addEventListener('click', () => switchTab('tabBtnRules'));
+
+    // Settings Modal
+    document.getElementById('btnOpenSettings').addEventListener('click', () => {
+      document.getElementById('settingsModal').classList.remove('hidden');
+    });
+    document.getElementById('btnCloseSettings').addEventListener('click', () => {
+      document.getElementById('settingsModal').classList.add('hidden');
+    });
+    document.getElementById('btnApplySettings').addEventListener('click', () => {
+      state.mode = document.getElementById('selGameMode').value;
+      state.rules.bloodGate = document.getElementById('chkRuleBloodGate').checked;
+      state.rules.doubles = document.getElementById('chkRuleDoubles').checked;
+      state.rules.threeBust = document.getElementById('chkRuleThreeBust').checked;
+      document.getElementById('settingsModal').classList.add('hidden');
+      initMatch();
+    });
+
+    document.getElementById('btnToggleSound').addEventListener('click', (e) => {
+      soundEnabled = !soundEnabled;
+      e.currentTarget.textContent = soundEnabled ? '🔊' : '🔇';
+    });
+
+    document.getElementById('btnNewMatch').addEventListener('click', () => initMatch());
+    document.getElementById('btnPlayAgainModal').addEventListener('click', () => initMatch());
+
+    window.addEventListener('resize', () => drawBoard());
+
+    window.onload = () => {
+      renderCowrieShells(false);
+      initMatch();
+    };
+  </script>
+</body>
+</html>
+
+Analyse this and make it this using nextjs and please add animations in 
+this game using framer motion and sound effect also add smooth 
+animations. and a option like play with bot or play with real player 
+like 2 player, 4 player. make it reponsive also.

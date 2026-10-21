@@ -1,0 +1,6 @@
+{
+  "name": "Asta Chamma (Chinnata | Royal 5 Houses)",
+  "description": "Traditional Indian board game of Asta Chamma (Chauka Bara) with cowrie shells, animated gem pawns, AI bot and local multiplayer modes, and sound effects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
